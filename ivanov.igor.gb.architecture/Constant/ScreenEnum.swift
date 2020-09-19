@@ -8,5 +8,5 @@
 import Foundation
 
 enum ScreenEnum {
-    case taskList, newTask
+    case none, taskList, newTask
 }

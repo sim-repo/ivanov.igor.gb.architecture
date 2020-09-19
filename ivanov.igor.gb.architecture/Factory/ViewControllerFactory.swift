@@ -11,11 +11,11 @@ import Combine
 
 protocol ViewModelProtocol {
     init(params: Any?)
+    var didPressForward: Published<(ScreenEnum,Any?)>.Publisher? { get }
+    var didPressBack: Published<Bool> { get set }
 }
 
 protocol CoordinatableVCProtocol: class {
-    var didPressForward: Published<(ScreenEnum,Any?)>.Publisher? { get }
-    var didPressBack: Published<Bool> { get set }
     func setViewModel(_ vm: ViewModelProtocol)
 }
 
@@ -28,6 +28,8 @@ class ViewControllerFactory {
             return TaskViewController.instantiate(storyboardName: "Main")
         case .newTask:
             return NewTaskViewController.instantiate(storyboardName: "Main")
+        default:
+            return nil
         }
     }
 }

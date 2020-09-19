@@ -10,13 +10,14 @@ import Combine
 
 class TaskViewModel: ViewModelProtocol {
     
-    private var parentTask: TaskProtocol?
+    private(set) var parentTask: TaskProtocol?
+    private var cancellable = Set<AnyCancellable>()
     
-    required init(params: Any?) {
-        guard let param = params as? TaskProtocol else { return }
-        parentTask = param
-    }
+    @Published var destination: (ScreenEnum, Any?) = (.none,nil)
+
     
+    @Published var didPressDrillDownTask: IndexPath?
+
     @Published var taskList: [TaskProtocol] = [Task(name: "1"),
                                                Task(name: "2"),
                                                TaskGroupDecorator(name: "3"),
@@ -26,4 +27,41 @@ class TaskViewModel: ViewModelProtocol {
     //input
     @Published var commitNewTask: TaskProtocol?
     
+    //output
+    var didPressForward: Published<(ScreenEnum, Any?)>.Publisher? { $destination }
+    var didPressBack: Published<Bool> = .init(initialValue: true)
+    
+    
+    
+    required init(params: Any?) {
+        binding()
+        guard let param = params as? TaskProtocol else { return }
+        parentTask = param
+    }
+    
+    
+    deinit {
+        print("\(TaskViewModel.self): deinit")
+    }
+    
+    
+    private func binding() {
+        $didPressDrillDownTask
+            .sink(receiveValue: {[weak self] indexPath in
+                guard let self = self,
+                    let indexPath = indexPath,
+                    let curTask = self.getCurrentTask(taskList: self.taskList, indexPath: indexPath)
+                    else { return }
+                self.destination = (.taskList, curTask)
+            })
+            .store(in: &cancellable)
+    }
+    
+    
+    private func getCurrentTask(taskList: [TaskProtocol]?, indexPath: IndexPath) -> TaskProtocol? {
+        guard let list = taskList,
+                 list.count - 1 >= indexPath.row
+        else { return nil }
+        return list[indexPath.row]
+    }
 }

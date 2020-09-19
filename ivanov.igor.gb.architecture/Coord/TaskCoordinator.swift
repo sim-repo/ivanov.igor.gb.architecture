@@ -9,6 +9,7 @@ import UIKit
 import Combine
 
 class TaskCoordinator: CoordinatorProtocol {
+
     var childCoordinators: [CoordinatorProtocol]?
     
     var vc: (UIViewController & CoordinatableVCProtocol)?
@@ -40,25 +41,30 @@ class TaskCoordinator: CoordinatorProtocol {
         viewModel = TaskViewModel(params: params)
         binding()
         vc?.setViewModel(viewModel!)
-        navigationController.pushViewController(vc!, animated: false)
+        navigationController.pushViewController(vc!, animated: true)
     }
     
     
     func binding(){
-        vc?.didPressForward?.sink(receiveValue: {(val) in
-            print("\(val.0) : \(val.1)")
+        viewModel?.didPressForward?.sink(receiveValue: {[weak self] (val) in
+            guard let self = self else { return }
+            let screenEnum = val.0
+            let params = val.1
+            self.doForward(screenEnum: screenEnum, params: params)
         })
         .store(in: &cancellable)
     }
     
     
-    func didPressForward(screenEnum: ScreenEnum) {
+    func doForward(screenEnum: ScreenEnum, params: Any?) {
         var coord: CoordinatorProtocol
         switch screenEnum {
         case .taskList:
             coord = TaskCoordinator(navigationController: navigationController, params: params)
         case .newTask:
             coord = NewTaskCoordinator(navigationController: navigationController, params: params)
+        default:
+            return
         }
         store(coordinator: coord)
         coord.start(onRelease: { [weak self] in
@@ -66,7 +72,7 @@ class TaskCoordinator: CoordinatorProtocol {
         })
     }
     
-    func didPressBack() {
+    func doBack() {
         onRelease?()
     }
 }

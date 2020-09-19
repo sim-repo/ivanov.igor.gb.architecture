@@ -9,8 +9,8 @@ protocol CoordinatorProtocol : class {
     
     func start(onRelease: (()->Void)?)
     
-    func didPressForward(screenEnum: ScreenEnum)
-    func didPressBack()
+    func doForward(screenEnum: ScreenEnum, params: Any?)
+    func doBack()
 }
 
 extension CoordinatorProtocol {

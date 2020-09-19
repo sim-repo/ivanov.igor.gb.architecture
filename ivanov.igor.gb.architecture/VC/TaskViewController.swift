@@ -11,38 +11,31 @@ import Combine
 class TaskViewController: UIViewController, Storyboarded, CoordinatableVCProtocol {
       
     @IBOutlet weak var tableView: UITableView!
-    var viewModel: TaskViewModel!
-    
-    
-    @Published var cellDidPressShowChildTasks: UITableViewCell?
-    @Published var destination: (ScreenEnum, Any?) = (.newTask,"Hello")
-    @Published var params: Any?
-        
-        
-    var didPressForward: Published<(ScreenEnum, Any?)>.Publisher? { $destination }
-    var didPressBack: Published<Bool> = .init(initialValue: true)
-    private var cancellable = Set<AnyCancellable>()
-    
-    
+    weak var viewModel: TaskViewModel!
+
     
     override func viewDidLoad() {
         super.viewDidLoad()
         let add = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(pressAddTask))
         navigationItem.rightBarButtonItems = [add]
-        navigationItem.title = "Task List"
-        binding()
+        navigationItem.title = viewModel.parentTask?.name
     }
     
+    
+    deinit {
+        let name = viewModel?.parentTask?.name ?? ""
+        print("\(TaskViewController.self): \(name) :deinit")
+    }
+    
+    
     @objc func pressAddTask(){
-        destination = (.newTask, ["Hello", "John"])
+       // destination = (.newTask, ["Hello", "John"])
     }
     
     func setViewModel(_ vm: ViewModelProtocol) {
         guard let vm = vm as? TaskViewModel else { return }
         viewModel = vm
     }
-    
-
 }
 
 
@@ -59,29 +52,13 @@ extension TaskViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "TaskCell", for: indexPath) as! TaskTableViewCell
         let task = viewModel.taskList[indexPath.row]
-        cell.setup(name: task.name, vc: self)
+        cell.setup(name: task.name, viewModel: viewModel, tableView: tableView)
         return cell
-    }
-}
-
-// table cell
-extension TaskViewController {
-    
-    func binding(){
-        $cellDidPressShowChildTasks
-            .sink(receiveValue: {[weak self] cell in
-                guard let self = self,
-                      let cell = cell else { return }
-                if let idx = self.tableView.indexPath(for: (cell)) {
-                    self.destination = (.taskList, idx.row)
-                }
-            })
-            .store(in: &cancellable)
     }
 }
 
 extension TaskViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        destination = (.taskList, indexPath)
+        //destination = (.taskList, indexPath)
     }
 }

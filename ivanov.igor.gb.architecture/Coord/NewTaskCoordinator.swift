@@ -31,10 +31,10 @@ class NewTaskCoordinator: CoordinatorProtocol {
         navigationController.pushViewController(vc!, animated: false)
     }
     
-    func didPressForward(screenEnum: ScreenEnum) {
+    func doForward(screenEnum: ScreenEnum, params: Any?) {
     }
     
-    func didPressBack() {
+    func doBack() {
         onRelease?()
     }
 }

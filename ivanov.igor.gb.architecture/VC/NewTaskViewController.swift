@@ -9,15 +9,6 @@ import UIKit
 
 class NewTaskViewController: UIViewController,Storyboarded, CoordinatableVCProtocol {
 
-
-    @Published var destination: (ScreenEnum, Any?) = (.newTask,nil)
-    @Published var params: Any?
-        
-        
-    var didPressForward: Published<(ScreenEnum, Any?)>.Publisher? { $destination }
-    var didPressBack: Published<Bool> = .init(initialValue: true)
-    
-
     var viewModel: TaskViewModel?
 
     override func viewDidLoad() {
