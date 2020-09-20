@@ -28,7 +28,7 @@ class TaskCoordinator: CoordinatorProtocol {
     }
     
     deinit {
-        print("deinit")
+        print("TaskCoordinator: deinit")
     }
     
     func start(onRelease: (()->Void)? = nil) {
@@ -46,11 +46,22 @@ class TaskCoordinator: CoordinatorProtocol {
     
     
     func binding(){
-        viewModel?.didPressForward?.sink(receiveValue: {[weak self] (val) in
+        viewModel?.didPressForward?
+        .dropFirst()
+        .sink(receiveValue: {[weak self] (val) in
             guard let self = self else { return }
             let screenEnum = val.0
             let params = val.1
             self.doForward(screenEnum: screenEnum, params: params)
+        })
+        .store(in: &cancellable)
+        
+        
+        viewModel?.didPressBack?
+        .dropFirst()
+        .sink(receiveValue: {[weak self] _ in
+            guard let self = self else { return }
+            self.doBack()
         })
         .store(in: &cancellable)
     }
@@ -68,7 +79,9 @@ class TaskCoordinator: CoordinatorProtocol {
         }
         store(coordinator: coord)
         coord.start(onRelease: { [weak self] in
-            self?.free(coordinator: coord)
+            guard let self = self else { return }
+            self.free(coordinator: coord)
+            self.viewModel?.needReloadData = true
         })
     }
     

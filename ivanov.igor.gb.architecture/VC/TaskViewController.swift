@@ -13,28 +13,51 @@ class TaskViewController: UIViewController, Storyboarded, CoordinatableVCProtoco
     @IBOutlet weak var tableView: UITableView!
     weak var viewModel: TaskViewModel!
 
+    private var cancellable = Set<AnyCancellable>()
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        let add = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(pressAddTask))
-        navigationItem.rightBarButtonItems = [add]
-        navigationItem.title = viewModel.parentTask?.name
+        setupNavigationBar()
     }
-    
     
     deinit {
         let name = viewModel?.parentTask?.name ?? ""
         print("\(TaskViewController.self): \(name) :deinit")
     }
     
-    
-    @objc func pressAddTask(){
-       // destination = (.newTask, ["Hello", "John"])
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+
+        if self.isMovingFromParent {
+            viewModel.back = true
+        }
     }
     
     func setViewModel(_ vm: ViewModelProtocol) {
         guard let vm = vm as? TaskViewModel else { return }
         viewModel = vm
+        binding()
+    }
+    
+    private func setupNavigationBar() {
+        let add = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(pressAddTask))
+        navigationItem.rightBarButtonItems = [add]
+        navigationItem.title = viewModel.parentTask?.name ?? "Tasks"
+    }
+    
+    private func binding(){
+        viewModel.$needReloadData
+            .dropFirst()
+            .sink(receiveValue: {[weak self] _ in
+                guard let self = self else { return }
+                self.tableView?.reloadData()
+            })
+            .store(in: &cancellable)
+    }
+    
+    
+    @objc func pressAddTask(){
+        viewModel.didPressNewTask = 1
     }
 }
 
@@ -52,7 +75,8 @@ extension TaskViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "TaskCell", for: indexPath) as! TaskTableViewCell
         let task = viewModel.taskList[indexPath.row]
-        cell.setup(name: task.name, viewModel: viewModel, tableView: tableView)
+        let count = viewModel.getSubTasksCount(at: indexPath)
+        cell.setup(task: task, viewModel: viewModel, tableView: tableView, subTasksCount: count)
         return cell
     }
 }
@@ -60,5 +84,14 @@ extension TaskViewController: UITableViewDataSource {
 extension TaskViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         //destination = (.taskList, indexPath)
+    }
+    
+    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        if editingStyle == .delete {
+            self.tableView.beginUpdates()
+            viewModel.didSwipeRemoveTask = indexPath
+            tableView.deleteRows(at: [indexPath], with: .automatic)
+            self.tableView.endUpdates()
+        }
     }
 }

@@ -8,10 +8,12 @@
 import Foundation
 
 
-final class TaskGroupDecorator: TaskGroupDecoratorProtocol {
+final class TaskGroupComposite: TaskGroupCompositeProtocol {
     
     var name: String
+    var desc: String?
     var subtasks: [TaskProtocol]?
+    var status: TaskStatusType = .ready
     
     init(name: String) {
         self.name = name
@@ -24,7 +26,14 @@ final class TaskGroupDecorator: TaskGroupDecoratorProtocol {
         subtasks?.append(subtask)
     }
     
+    func setStatus(status: TaskStatusType) {
+        self.status = status
+        subtasks?.forEach{$0.setStatus(status: status)}
+    }
+    
     func remove(task: TaskProtocol) {
-        
+        if let index = subtasks?.firstIndex(where: {$0 === task}) {
+            subtasks?.remove(at: index)
+        }
     }
 }

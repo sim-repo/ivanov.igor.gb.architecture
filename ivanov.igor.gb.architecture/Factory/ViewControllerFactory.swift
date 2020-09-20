@@ -12,7 +12,7 @@ import Combine
 protocol ViewModelProtocol {
     init(params: Any?)
     var didPressForward: Published<(ScreenEnum,Any?)>.Publisher? { get }
-    var didPressBack: Published<Bool> { get set }
+    var didPressBack: Published<Any?>.Publisher? { get }
 }
 
 protocol CoordinatableVCProtocol: class {

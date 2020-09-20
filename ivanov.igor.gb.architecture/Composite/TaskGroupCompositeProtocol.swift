@@ -8,8 +8,9 @@
 import Foundation
 
 // #composite
-protocol TaskGroupDecoratorProtocol: TaskProtocol {
+protocol TaskGroupCompositeProtocol: TaskProtocol {
     var subtasks: [TaskProtocol]? { get }
     func addTask(subtask: TaskProtocol)
+    func setStatus(status: TaskStatusType)
     func remove(task: TaskProtocol)
 }
