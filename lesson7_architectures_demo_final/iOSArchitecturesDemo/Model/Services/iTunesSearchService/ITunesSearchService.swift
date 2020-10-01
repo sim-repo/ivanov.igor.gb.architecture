@@ -78,6 +78,7 @@ final class ITunesSearchService {
             result
                 .withValue { data in
                     do {
+                        print(String(decoding: data, as: UTF8.self))
                         let result = try self.decoder.decode(ITunesSearchResult<ITunesSong>.self, from: data)
                         let apps = result.results
                         completion?(.success(apps))
