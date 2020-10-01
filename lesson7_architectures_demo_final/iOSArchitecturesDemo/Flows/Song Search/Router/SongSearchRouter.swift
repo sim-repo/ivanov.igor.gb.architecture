@@ -8,6 +8,8 @@
 
 import UIKit
 
+// #HW8: VIPER
+
 protocol SongSearchRouterInputProtocol {
     func openDetails(for song: ITunesSong)
 }

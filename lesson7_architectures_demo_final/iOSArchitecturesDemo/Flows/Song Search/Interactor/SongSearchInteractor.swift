@@ -9,6 +9,8 @@
 import Foundation
 import Alamofire
 
+// #HW8: VIPER
+
 protocol SongSearchInteractorProtocol {
     func requestSongs(with query: String, completion: @escaping (Result<[ITunesSong]>) -> Void)
 }

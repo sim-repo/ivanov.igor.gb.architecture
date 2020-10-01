@@ -9,7 +9,7 @@
 import UIKit
 
 
-// view model ничего не знает об view!
+// #HW8: MVVM
 class SongDetailBuilder {
    
     private var song: ITunesSong?

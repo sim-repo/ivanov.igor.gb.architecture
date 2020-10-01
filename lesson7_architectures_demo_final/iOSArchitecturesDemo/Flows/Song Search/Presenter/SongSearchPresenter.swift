@@ -8,6 +8,7 @@
 
 import UIKit
 
+// #HW8: VIPER
 
 protocol SongSearchViewInput {
     var searchResults: [ITunesSong] { get set }

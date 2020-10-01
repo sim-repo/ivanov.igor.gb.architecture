@@ -8,6 +8,7 @@
 
 import UIKit
 
+// #HW8: MVVM
 protocol SongDetailRouterInputProtocol {
     func back()
 }

@@ -10,6 +10,7 @@ import Foundation
 import Alamofire
 import Combine
 
+// #HW8: MVVM
 protocol SongDetailIInteractorProtocol {
     func didStartPlay(_ song: ITunesSong)
     func didPause()

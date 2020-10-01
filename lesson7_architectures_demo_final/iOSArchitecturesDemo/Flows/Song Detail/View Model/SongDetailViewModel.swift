@@ -9,6 +9,7 @@
 import UIKit
 import Combine
 
+// #HW8: MVVM
 protocol SongDetailVMInput {
     var onViewDidPressPlay: PublishedWrapper<Any>? { get set }
     var onViewDidPressPause: PublishedWrapper<Any>? { get set }
